@@ -1,0 +1,46 @@
+version: 0
+name: JSON placeholder test collection
+description: Some description can come here
+requests:
+  - name: "Get todos"
+    method: "GET"
+    url: "https://{{.BASE_URL}}/{{.ITEM}}"
+    header:
+      Content-type: "application/json; charset=UTF-8"
+
+  - name: "Get todo"
+    method: "GET"
+    url: "https://{{.BASE_URL}}/{{.ITEM}}/{{.ID}}"
+    header:
+      Content-type: "application/json; charset=UTF-8"
+
+  - name: "Create todo"
+    method: "POST"
+    url: "https://{{.BASE_URL}}/{{.ITEM}}"
+    header:
+      Content-type: "application/json; charset=UTF-8"
+    body: >-
+      {
+        "userId": 1,
+        "title": "just for testing...",
+        "completed": false
+      }
+
+  - name: "Update todo"
+    method: "PUT"
+    url: "https://{{.BASE_URL}}/{{.ITEM}}/{{.ID}}"
+    header:
+      Content-type: "application/json; charset=UTF-8"
+    body: >-
+      {
+        "id": "{{.ID}}",
+        "userId": 1,
+        "title": "update something",
+        "completed": true
+      }
+
+  - name: "Delete todo"
+    method: "DELETE"
+    url: "https://{{.BASE_URL}}/{{.ITEM}}/{{.ID}}"
+    header:
+      Content-type: "application/json; charset=UTF-8"

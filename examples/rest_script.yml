@@ -1,0 +1,26 @@
+version: 0
+name: Test to run all
+collection: "./rest_collection.yml"
+steps:
+  - name: "First step"
+    request: "Get todos"
+    before: >-
+      setEnv("ID", parseInt(getEnv("ID"), 10) + 1);
+
+  - name: "Second step"
+    request: "Get todo"
+    after: >-
+
+  - name: "Third step"
+    request: "Create todo"
+    output: true
+
+  - name: "Fourth step"
+    request: "Update todo"
+    after: >-
+      if(parseInt(getEnv("ID"), 10) < 46) {
+        goto("First step");
+      }
+
+  - name: "Fifth step"
+    request: "Delete todo"
