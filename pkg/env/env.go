@@ -20,12 +20,12 @@ func GetEnv(customLocation string) (Env, error) {
 	if len(customLocation) > 0 {
 		err := godotenv.Load(customLocation)
 		if err != nil {
-			fmt.Println("Didn't find .env file")
+			fmt.Fprintf(os.Stderr, "Didn't find .env file\n")
 		}
 	} else {
 		err := godotenv.Load()
 		if err != nil {
-			fmt.Println("Didn't find .env file")
+			fmt.Fprintf(os.Stderr, "Didn't find .env file\n")
 		}
 	}
 
