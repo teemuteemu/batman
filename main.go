@@ -16,7 +16,7 @@ import (
 const (
 	AppName        = "batman"
 	AppDescription = "Scriptable HTTP client for command line."
-	Version        = "0.0.5"
+	Version        = "0.0.52"
 )
 
 var cli struct {
