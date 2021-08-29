@@ -12,7 +12,7 @@ lint:
 .PHONY: lint
 
 build:
-	CGO_ENABLED=0 go build -o $(BIN_NAME) main.go
+	CGO_ENABLED=0 go build -o $(BIN_DIR)/$(BIN_NAME) cmd/main.go
 .PHONY: build
 
 install:
