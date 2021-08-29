@@ -13,11 +13,11 @@ lint:
 .PHONY: lint
 
 build:
-	go build -o $(BIN_DIR)/$(BIN_NAME) cmd/main.go
+	go build -o $(BIN_NAME) main.go
 .PHONY: build
 
 install:
-	go build -o $(GOPATH)/bin/$(BIN_NAME) cmd/main.go
+	go install
 .PHONY: install
 
 uninstall:
