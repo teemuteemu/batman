@@ -1,0 +1,15 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull-request:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: make lint
+      - run: make test
+      - run: make build
