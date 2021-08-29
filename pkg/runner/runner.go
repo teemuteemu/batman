@@ -63,7 +63,7 @@ func (r *Run) RunScript(script *files.Script) error {
 	for {
 		step := script.Steps[i]
 
-		fmt.Printf("%s\t", step.Name)
+		fmt.Printf("%s:\n", step.Name)
 
 		if step.Before != nil {
 			fmt.Printf("\n")

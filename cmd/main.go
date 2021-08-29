@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/alecthomas/kong"
 	"github.com/teemuteemu/batman/pkg/client"
@@ -134,7 +135,9 @@ func runScript(envFile string, scriptFile string) error {
 		return err
 	}
 
-	c, err := files.GetCollection(s.Collection)
+	collectionFile := path.Join(path.Dir(scriptFile), s.Collection)
+
+	c, err := files.GetCollection(collectionFile)
 	if err != nil {
 		return err
 	}

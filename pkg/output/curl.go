@@ -29,6 +29,7 @@ func (f CurlFormatter) RenderRequest(request *client.Request) string {
 
 	sb.WriteString(" ")
 	sb.WriteString(request.URL)
+	sb.WriteString("\n")
 
 	return sb.String()
 }
