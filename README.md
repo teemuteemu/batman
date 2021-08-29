@@ -11,6 +11,12 @@ Batman can:
  * Run scripts over multiple of API calls to execute complex call flows
  * Format the calls to `curl` commands
 
+## Install
+
+With `go install`:
+
+`go install github.com/teemuteemu/batman@latest`
+
 ## Examples:
 
 ### Run a single request using env vars
