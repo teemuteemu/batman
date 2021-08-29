@@ -5,8 +5,8 @@ builds:
   -
     id: batman
     dir: .
-    main: ./cmd/main.go
-    binary: ./bin/batman
+    main: ./main.go
+    binary: batman
     env:
       - CGO_ENABLED=0
     goos:

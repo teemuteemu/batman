@@ -12,7 +12,7 @@ lint:
 .PHONY: lint
 
 build:
-	CGO_ENABLED=0 go build -o $(BIN_DIR)/$(BIN_NAME) cmd/main.go
+	CGO_ENABLED=0 go build -o $(BIN_NAME) main.go
 .PHONY: build
 
 install:
@@ -24,5 +24,5 @@ uninstall:
 .PHONY: uninstall
 
 clean:
-	rm -rf $(BIN_DIR)
+	rm $(BIN_NAME)
 .PHONY: clean
