@@ -4,6 +4,7 @@ before:
 builds:
   -
     id: batman
+    dir: .
     main: ./cmd/main.go
     binary: batman
     env:
