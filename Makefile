@@ -8,12 +8,11 @@ test:
 .PHONY: test
 
 lint:
-	go mod download
 	golangci-lint run --allow-parallel-runners
 .PHONY: lint
 
 build:
-	go build -o $(BIN_NAME) main.go
+	CGO_ENABLED=0 go build -o $(BIN_NAME) main.go
 .PHONY: build
 
 install:
