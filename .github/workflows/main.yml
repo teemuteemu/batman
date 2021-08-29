@@ -2,19 +2,14 @@ name: CI
 on: [push]
 jobs:
   test:
-    name: Test
+    name: Test and build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: golangci-lint
+      - name: Lint
         uses: golangci/golangci-lint-action@v2
       - name: Test
         run: make test
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
       - name: Build
         run: make build
