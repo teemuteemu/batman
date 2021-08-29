@@ -4,5 +4,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - run: make test
-      - run: make build
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Lint
+        run: make lint
+      - name: Test
+        run: make test
+      - name: Build
+        run: make build
