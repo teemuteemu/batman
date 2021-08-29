@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/teemuteemu/batman/pkg/client"
 	"github.com/teemuteemu/batman/pkg/env"
-	"github.com/teemuteemu/batman/pkg/files"
 )
 
 var testEnv = make(env.Env)
@@ -34,13 +34,13 @@ func TestPrepareHeader(t *testing.T) {
 	expectedHeaderKey2 := "test_header_key_2"
 	expectedHeaderValue1 := "test_header_value_1"
 	expectedHeaderValue2 := "test_header_value_2"
-	expectedHeader := files.Header{
+	expectedHeader := client.Header{
 		expectedHeaderKey1: expectedHeaderValue1,
 		expectedHeaderKey2: expectedHeaderValue2,
 	}
 	testEnv["header_value_1"] = expectedHeaderValue1
 	testEnv["header_value_2"] = expectedHeaderValue2
-	inputHeader := files.Header{
+	inputHeader := client.Header{
 		expectedHeaderKey1: "{{.header_value_1}}",
 		expectedHeaderKey2: "{{.header_value_2}}",
 	}

@@ -3,6 +3,7 @@ package files_test
 import (
 	"testing"
 
+	"github.com/teemuteemu/batman/pkg/client"
 	"github.com/teemuteemu/batman/pkg/files"
 )
 
@@ -17,7 +18,7 @@ type FindRequestTestCase struct {
 	name            string
 	inputCollection files.Collection
 	requestName     string
-	outputRequest   *files.Request
+	outputRequest   *client.Request
 	expectError     bool
 }
 
@@ -49,21 +50,21 @@ var successfullOutput = files.Collection{
 	Version:     42,
 	Name:        "test collection 1",
 	Description: "test description",
-	Requests: []files.Request{
-		files.Request{
+	Requests: []client.Request{
+		{
 			Name:   "test get",
 			Method: "GET",
 			URL:    "http://foo.com/get",
-			Header: files.Header{
+			Header: client.Header{
 				"foo": "bar",
 			},
 			Body: "",
 		},
-		files.Request{
+		{
 			Name:   "test post",
 			Method: "POST",
 			URL:    "http://foo.com/post",
-			Header: files.Header{
+			Header: client.Header{
 				"Content-type": "application/json; charset=UTF-8",
 				"Other-header": "value-123",
 			},
@@ -74,13 +75,13 @@ var successfullOutput = files.Collection{
 
 func TestUnmarshalCollection(t *testing.T) {
 	testCases := []UnmarshalTestCase{
-		UnmarshalTestCase{
+		{
 			name:        "Successfull input",
 			input:       successfullInput,
 			output:      successfullOutput,
 			expectError: false,
 		},
-		UnmarshalTestCase{
+		{
 			name:        "Bad YAML input",
 			input:       badYamlInput,
 			output:      files.Collection{},
@@ -149,21 +150,21 @@ func TestUnmarshalCollection(t *testing.T) {
 
 func TestFindRequest(t *testing.T) {
 	testCases := []FindRequestTestCase{
-		FindRequestTestCase{
+		{
 			name:            "Successfully find GET request",
 			inputCollection: successfullOutput,
 			outputRequest:   &successfullOutput.Requests[0],
 			requestName:     "test get",
 			expectError:     false,
 		},
-		FindRequestTestCase{
+		{
 			name:            "Successfully find POST request",
 			inputCollection: successfullOutput,
 			outputRequest:   &successfullOutput.Requests[1],
 			requestName:     "test post",
 			expectError:     false,
 		},
-		FindRequestTestCase{
+		{
 			name:            "Request not found",
 			inputCollection: successfullOutput,
 			outputRequest:   nil,

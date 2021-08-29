@@ -4,24 +4,15 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/teemuteemu/batman/pkg/client"
 	"gopkg.in/yaml.v2"
 )
 
-type Header map[string]string
-
-type Request struct {
-	Name   string `yaml:"name"`
-	Method string `yaml:"method"`
-	URL    string `yaml:"url"`
-	Header Header `yaml:"header"`
-	Body   string `yaml:"body"`
-}
-
 type Collection struct {
-	Version     uint      `yaml:"version"`
-	Name        string    `yaml:"name"`
-	Description string    `yaml:"description"`
-	Requests    []Request `yaml:"requests"`
+	Version     uint             `yaml:"version"`
+	Name        string           `yaml:"name"`
+	Description string           `yaml:"description"`
+	Requests    []client.Request `yaml:"requests"`
 }
 
 type Step struct {
@@ -51,7 +42,7 @@ func UnmarshalCollection(collectionStr []byte) (Collection, error) {
 	return collection, nil
 }
 
-func (c *Collection) FindRequest(requestName string) (*Request, error) {
+func (c *Collection) FindRequest(requestName string) (*client.Request, error) {
 	for _, request := range c.Requests {
 		if request.Name == requestName {
 			return &request, nil

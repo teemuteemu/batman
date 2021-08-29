@@ -6,6 +6,9 @@ all: test build
 test:
 	go test -v ./...
 
+lint:
+	golangci-lint run --allow-parallel-runners
+
 build:
 	go build -o $(BIN_DIR)/$(BIN_NAME) cmd/main.go
 

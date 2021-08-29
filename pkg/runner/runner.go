@@ -17,7 +17,10 @@ type Run struct {
 }
 
 func New(c *files.Collection, e *env.Env) (*Run, error) {
-	vm := vm.New(e)
+	vm, err := vm.New(e)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Run{
 		Collection: c,
@@ -26,19 +29,28 @@ func New(c *files.Collection, e *env.Env) (*Run, error) {
 	}, nil
 }
 
-func (r *Run) RunRequests(requestNames []string) error {
+func (r *Run) ProcessRequests(requestNames []string, formatter client.Formatter, execute bool) error {
 	for _, requestName := range requestNames {
-		resp, err := r.runRequest(requestName)
+		request, err := r.prepareRequest(requestName)
 		if err != nil {
 			return err
 		}
 
-		jsonOutput, err := renderer.FormatJSON(resp.Body)
-		if err != nil {
-			return err
-		}
+		if !execute {
+			fmt.Print(formatter.RenderRequest(request))
+		} else {
+			response, err := client.ExecuteRequest(request)
+			if err != nil {
+				return err
+			}
 
-		fmt.Println(jsonOutput)
+			call := client.Call{
+				Request:  request,
+				Response: response,
+			}
+
+			fmt.Print(formatter.Render(&call))
+		}
 	}
 
 	return nil
@@ -76,7 +88,14 @@ func (r *Run) RunScript(script *files.Script) error {
 			}
 		}
 
-		resp, err := r.runRequest(step.Request)
+		request, err := r.prepareRequest(step.Request)
+		if err != nil {
+			fmt.Printf("%s\n", err)
+			i++
+			continue
+		}
+
+		response, err := client.ExecuteRequest(request)
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			i++
@@ -84,7 +103,7 @@ func (r *Run) RunScript(script *files.Script) error {
 		}
 
 		if step.After != nil {
-			gotoStep, err := r.runJS(step.After, resp)
+			gotoStep, err := r.runJS(step.After, response)
 			if err != nil {
 				return err
 			}
@@ -105,7 +124,7 @@ func (r *Run) RunScript(script *files.Script) error {
 		}
 
 		if step.Output {
-			jsonOutput, err := renderer.FormatJSON(resp.Body)
+			jsonOutput, err := renderer.FormatJSON(response.Body)
 			if err != nil {
 				return err
 			}
@@ -122,7 +141,7 @@ func (r *Run) RunScript(script *files.Script) error {
 	return nil
 }
 
-func (r *Run) runRequest(requestName string) (*client.Response, error) {
+func (r *Run) prepareRequest(requestName string) (*client.Request, error) {
 	request, err := r.Collection.FindRequest(requestName)
 	if err != nil {
 		return nil, err
@@ -146,20 +165,16 @@ func (r *Run) runRequest(requestName string) (*client.Response, error) {
 		return nil, err
 	}
 
-	fmt.Printf("%s %s ", request.Method, url)
+	renderedRequest := *request
+	renderedRequest.URL = url
+	renderedRequest.Header = headers
+	renderedRequest.Body = body.String()
 
-	resp, err := client.ExecuteRequest(request.Method, url, headers, body)
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Printf("\t%d\n", resp.StatusCode)
-
-	return resp, nil
+	return &renderedRequest, nil
 }
 
-func (r *Run) runJS(script *string, resp *client.Response) (string, error) {
-	gotoStep, err := r.VM.ExecuteScript(script, resp)
+func (r *Run) runJS(script *string, response *client.Response) (string, error) {
+	gotoStep, err := r.VM.ExecuteScript(script, response)
 	if err != nil {
 		return "", err
 	}

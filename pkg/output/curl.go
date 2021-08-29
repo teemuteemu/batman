@@ -1,35 +1,45 @@
 package output
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 
-	"github.com/teemuteemu/batman/pkg/files"
+	"github.com/teemuteemu/batman/pkg/client"
 )
 
 type CurlFormatter struct{}
 
-func (cf CurlFormatter) Format(method string, url string, headers files.Header, body *bytes.Buffer) (string, error) {
+func (f CurlFormatter) RenderRequest(request *client.Request) string {
 	var sb strings.Builder
 
 	sb.WriteString("curl")
 	sb.WriteString(" -v")
-	sb.WriteString(fmt.Sprintf(" -X %s", method))
+	sb.WriteString(fmt.Sprintf(" -X %s", request.Method))
 
-	for headerKey, headerValue := range headers {
+	for headerKey, headerValue := range request.Header {
 		sb.WriteString(fmt.Sprintf(` -H "%s: %s"`, headerKey, headerValue))
 	}
 
-	if body != nil && len(body.Bytes()) > 0 {
-		bodyStr := strings.ReplaceAll(body.String(), "\n", "")
+	if len(request.Body) > 0 {
+		bodyStr := strings.ReplaceAll(request.Body, "\n", "")
 		bodyStr = strings.ReplaceAll(bodyStr, " ", "")
 
 		sb.WriteString(fmt.Sprintf(" -d '%s'", bodyStr))
 	}
 
 	sb.WriteString(" ")
-	sb.WriteString(url)
+	sb.WriteString(request.URL)
 
-	return sb.String(), nil
+	return sb.String()
+}
+
+func (f CurlFormatter) RenderResponse(response *client.Response) string {
+	return "nothing..."
+}
+
+func (f CurlFormatter) Render(call *client.Call) string {
+	req := f.RenderRequest(call.Request)
+	res := f.RenderResponse(call.Response)
+
+	return fmt.Sprintf("%s%s", req, res)
 }
