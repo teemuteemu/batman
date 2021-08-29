@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/alecthomas/kong"
+	"github.com/teemuteemu/batman/pkg/client"
 	"github.com/teemuteemu/batman/pkg/env"
 	"github.com/teemuteemu/batman/pkg/files"
 	"github.com/teemuteemu/batman/pkg/output"
@@ -12,8 +14,9 @@ import (
 )
 
 const (
-	APP_NAME = "batman"
-	VERSION  = "0.1"
+	AppName        = "batman"
+	AppDescription = "Scriptable HTTP client for command line."
+	Version        = "0.1"
 )
 
 var cli struct {
@@ -21,22 +24,23 @@ var cli struct {
 	Run struct {
 		Collection string   `arg:"" required:"" help:"Collection YAML"`
 		Requests   []string `arg:"" required:"" name:"requests" help:"Requests to execute"`
+		Output     string   `short:"o" defalt:"console" default:"console" enum:"console, json, yaml" help:"Output format"`
 	} `cmd:"" help:"Run one or more requests from the given collection"`
 	Script struct {
 		Script string `arg:"" required:"" help:"Script YAML"`
 	} `cmd:"" help:"Run a script YAML"`
-	Output struct {
+	Print struct {
 		Collection string   `arg:"" required:"" help:"Collection YAML"`
 		Requests   []string `arg:"" optional:"" name:"requests" help:"Requests to execute"`
-		Format     string   `short:"o" default:"curl" enum:"curl" help:"Output format"`
+		Output     string   `short:"o" default:"curl" enum:"curl" help:"Output format"`
 	} `cmd:"" help:"Output collection or requests"`
 	Version struct{} `cmd:"version" help:"Print version number"`
 }
 
 func main() {
 	ctx := kong.Parse(&cli,
-		kong.Name(APP_NAME),
-		kong.Description("Scriptable HTTP client for command line."),
+		kong.Name(AppName),
+		kong.Description(AppDescription),
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact: true,
@@ -45,31 +49,33 @@ func main() {
 
 	switch ctx.Command() {
 	case "run <collection> <requests>":
-		err := runRequests(cli.Run.Collection, cli.Env, cli.Run.Requests)
+		err := processRequests(cli.Env, cli.Run.Collection, cli.Run.Requests, cli.Run.Output, true)
 		if err != nil {
 			exit(&err)
 		}
 
 	case "script <script>":
-		err := runScript(cli.Script.Script, cli.Env)
+		err := runScript(cli.Env, cli.Script.Script)
 		if err != nil {
 			exit(&err)
 		}
 
-	case "output <collection> <requests>":
-		err := outputRequests(cli.Output.Collection, cli.Env, cli.Output.Requests, cli.Output.Format)
+	case "print <collection> <requests>":
+		err := processRequests(cli.Env, cli.Print.Collection, cli.Print.Requests, cli.Print.Output, false)
 		if err != nil {
 			exit(&err)
 		}
 
-	case "output <collection>":
-		err := outputAllRequests(cli.Output.Collection, cli.Env, cli.Output.Format)
-		if err != nil {
-			exit(&err)
-		}
+		/*
+			case "print <collection>":
+				err := outputAllRequests(cli.Env, cli.Print.Collection, cli.Print.Output)
+				if err != nil {
+					exit(&err)
+				}
+		*/
 
 	case "version":
-		fmt.Printf("%s v%s\n", APP_NAME, VERSION)
+		fmt.Printf("%s v%s\n", AppName, Version)
 		exit(nil)
 	}
 }
@@ -83,7 +89,7 @@ func exit(err *error) {
 	}
 }
 
-func runRequests(collectionFile string, envFile string, requestNames []string) error {
+func processRequests(envFile string, collectionFile string, requestNames []string, format string, executeRequests bool) error {
 	c, err := files.GetCollection(collectionFile)
 	if err != nil {
 		return err
@@ -99,15 +105,26 @@ func runRequests(collectionFile string, envFile string, requestNames []string) e
 		return err
 	}
 
-	err = run.RunRequests(requestNames)
-	if err != nil {
-		return err
+	formatters := client.Formaters{
+		"curl":    output.CurlFormatter{},
+		"yaml":    output.YAMLFormatter{},
+		"json":    output.JSONFormatter{},
+		"console": output.ConsoleFormatter{},
 	}
 
-	return nil
+	if formatter, ok := formatters[format]; ok {
+		err = run.ProcessRequests(requestNames, formatter, executeRequests)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf(`Could not found formatter "%s"`, format)
 }
 
-func runScript(scriptFile string, envFile string) error {
+func runScript(envFile string, scriptFile string) error {
 	e, err := env.GetEnv(envFile)
 	if err != nil {
 		return err
@@ -118,7 +135,9 @@ func runScript(scriptFile string, envFile string) error {
 		return err
 	}
 
-	c, err := files.GetCollection(s.Collection)
+	collectionFile := path.Join(path.Dir(scriptFile), s.Collection)
+
+	c, err := files.GetCollection(collectionFile)
 	if err != nil {
 		return err
 	}
@@ -129,54 +148,6 @@ func runScript(scriptFile string, envFile string) error {
 	}
 
 	err = run.RunScript(s)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func outputRequests(collectionFile string, envFile string, requestNames []string, format string) error {
-	c, err := files.GetCollection(collectionFile)
-	if err != nil {
-		return err
-	}
-
-	e, err := env.GetEnv(envFile)
-	if err != nil {
-		return err
-	}
-
-	o := output.New(c, &e)
-
-	err = o.OutputRequests(requestNames, format)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func outputAllRequests(collectionFile string, envFile string, format string) error {
-	c, err := files.GetCollection(collectionFile)
-	if err != nil {
-		return err
-	}
-
-	e, err := env.GetEnv(envFile)
-	if err != nil {
-		return err
-	}
-
-	requestNames := make([]string, 0)
-
-	for _, request := range c.Requests {
-		requestNames = append(requestNames, request.Name)
-	}
-
-	o := output.New(c, &e)
-
-	err = o.OutputRequests(requestNames, format)
 	if err != nil {
 		return err
 	}

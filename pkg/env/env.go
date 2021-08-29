@@ -8,8 +8,7 @@ import (
 	"text/template"
 
 	"github.com/joho/godotenv"
-
-	"github.com/teemuteemu/batman/pkg/files"
+	"github.com/teemuteemu/batman/pkg/client"
 )
 
 type Env map[string]string
@@ -40,26 +39,32 @@ func GetEnv(customLocation string) (Env, error) {
 func (e *Env) PrepareURL(requestURL string) (string, error) {
 	t, err := template.New("request").Parse(requestURL)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	var output bytes.Buffer
 	err = t.Execute(&output, *e)
+	if err != nil {
+		return "", err
+	}
 
 	return output.String(), nil
 }
 
-func (e *Env) PrepareHeader(requestHeader files.Header) (files.Header, error) {
-	headers := files.Header{}
+func (e *Env) PrepareHeader(requestHeader client.Header) (client.Header, error) {
+	headers := client.Header{}
 
 	for key, val := range requestHeader {
 		t, err := template.New(key).Parse(val)
 		if err != nil {
-			return files.Header{}, nil
+			return headers, err
 		}
 
 		var output bytes.Buffer
 		err = t.Execute(&output, *e)
+		if err != nil {
+			return headers, err
+		}
 
 		headers[key] = output.String()
 	}
@@ -70,11 +75,14 @@ func (e *Env) PrepareHeader(requestHeader files.Header) (files.Header, error) {
 func (e *Env) PrepareBody(requestBody string) (*bytes.Buffer, error) {
 	t, err := template.New("body").Parse(requestBody)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	var output bytes.Buffer
 	err = t.Execute(&output, *e)
+	if err != nil {
+		return nil, err
+	}
 
 	return &output, nil
 }

@@ -14,7 +14,7 @@ type VM struct {
 	env    env.Env
 }
 
-func New(env *env.Env) *VM {
+func New(env *env.Env) (*VM, error) {
 	engine := otto.New()
 
 	vm := &VM{
@@ -22,13 +22,32 @@ func New(env *env.Env) *VM {
 		env:    *env,
 	}
 
-	engine.Set("setEnv", vm.SetEnv)
-	engine.Set("getEnv", vm.GetEnv)
-	engine.Set("stop", vm.Stop)
-	engine.Set("assert", vm.Assert)
-	engine.Set("goto", vm.Goto)
+	err := engine.Set("setEnv", vm.SetEnv)
+	if err != nil {
+		return nil, err
+	}
 
-	return vm
+	err = engine.Set("getEnv", vm.GetEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	err = engine.Set("stop", vm.Stop)
+	if err != nil {
+		return nil, err
+	}
+
+	err = engine.Set("assert", vm.Assert)
+	if err != nil {
+		return nil, err
+	}
+
+	err = engine.Set("goto", vm.Goto)
+	if err != nil {
+		return nil, err
+	}
+
+	return vm, nil
 }
 
 func setupResponse(vm *otto.Otto, resp *client.Response) error {
@@ -57,7 +76,10 @@ func setupResponse(vm *otto.Otto, resp *client.Response) error {
 		return err
 	}
 
-	vm.Set("response", responseObject)
+	err = vm.Set("response", responseObject)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

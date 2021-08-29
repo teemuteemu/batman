@@ -1,9 +1,9 @@
 version: 0
-name: Test to run all
-collection: "rest_collection.yml"
+name: Run all
+collection: "./rest_collection.yml"
 steps:
-  - name: "First step"
-    call: "Get todos"
+  - name: "Print response headers"
+    request: "Get todos"
     after: >-
       Object.keys(response.header).forEach(function(key) {
         console.log(key + " - " + response.header[key])

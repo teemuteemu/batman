@@ -5,11 +5,14 @@ steps:
   - name: "First step"
     request: "Get todos"
     before: >-
-      setEnv("ID", parseInt(getEnv("ID"), 10) + 1);
+      var id = parseInt(getEnv("ID"), 10);
+      console.log("Get ID: "+id);
+    after: >-
+      var id = parseInt(getEnv("ID"), 10);
+      setEnv("ID", id + 1);
 
   - name: "Second step"
     request: "Get todo"
-    after: >-
 
   - name: "Third step"
     request: "Create todo"
