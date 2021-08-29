@@ -29,7 +29,7 @@ With `go install`:
 `batman script rest_script.yml`
 
 ### Output a call as a curl command
-`batman print rest_collection.yml examples/rest_collection.yml "Get todo"`
+`batman print examples/rest_collection.yml "Get todo"`
 
 ## JavaScript API
 
