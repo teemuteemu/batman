@@ -12,14 +12,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Get git tags
-        run: |
-          git fetch --prune --unshallow --tags
+        with:
+          fetch-depth: "0"
 
       - name: List tags
         run: |
-          git tag -l
+          echo $(git tag -l)
         
       - name: Install Go
         uses: actions/setup-go@v2
