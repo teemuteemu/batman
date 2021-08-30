@@ -1,5 +1,8 @@
 # Batman
 
+[![CI](https://github.com/teemuteemu/batman/workflows/CI/badge.svg)](actions?query=branch%3Amain)
+[![Release](https://github.com/teemuteemu/batman/workflows/Release/badge.svg)](releases)
+
 Batman > Postman
 
 Batman is a scriptable HTTP client that provides way to store and run single and multiple HTTP calls, and chain them to scripts. It allows scripting using JavaScript. Currently it focuses to REST APIs, so it might not cover all the alternative ways of dealing with HTTP APIs.
