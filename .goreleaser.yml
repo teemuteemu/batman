@@ -9,9 +9,6 @@ builds:
     binary: batman
     env:
       - CGO_ENABLED=0
-      - VERSION=$(git describe --tags --abbrev=0)
-    ldflags:
-      - -s -w -X main.version={{.Env.VERSION}}
     goos:
       - linux
       - darwin
