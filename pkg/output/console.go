@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/teemuteemu/batman/pkg/client"
-	"github.com/teemuteemu/batman/pkg/renderer"
 )
 
 type ConsoleFormatter struct{}
@@ -25,12 +24,7 @@ func (f ConsoleFormatter) RenderResponse(response *client.Response) string {
 	}
 	sb.WriteString("\n")
 
-	jsonOutput, err := renderer.FormatJSON(response.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	sb.WriteString(jsonOutput)
+	sb.WriteString(response.Body)
 	sb.WriteString("\n")
 
 	return sb.String()
