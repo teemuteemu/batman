@@ -1,5 +1,6 @@
 BIN_DIR=bin
 BIN_NAME=batman
+VERSION=$(shell git describe --tags --abbrev=0)
 
 all: test build
 
@@ -12,7 +13,7 @@ lint:
 .PHONY: lint
 
 build:
-	CGO_ENABLED=0 go build -o $(BIN_NAME) main.go
+	CGO_ENABLED=0 go build -ldflags "-X main.version=$(VERSION)" -o $(BIN_NAME) main.go
 .PHONY: build
 
 install:

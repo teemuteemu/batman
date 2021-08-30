@@ -35,7 +35,7 @@ func (f CurlFormatter) RenderRequest(request *client.Request) string {
 }
 
 func (f CurlFormatter) RenderResponse(response *client.Response) string {
-	return "TODO\n"
+	return ConsoleFormatter{}.RenderResponse(response)
 }
 
 func (f CurlFormatter) Render(call *client.Call) string {

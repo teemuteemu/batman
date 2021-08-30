@@ -29,6 +29,13 @@ func New(c *files.Collection, e *env.Env) (*Run, error) {
 }
 
 func (r *Run) ProcessRequests(requestNames []string, formatter client.Formatter, execute bool) error {
+	// if no requestNames provided, process them all
+	if len(requestNames) == 0 {
+		for _, r := range r.Collection.Requests {
+			requestNames = append(requestNames, r.Name)
+		}
+	}
+
 	for _, requestName := range requestNames {
 		request, err := r.prepareRequest(requestName)
 		if err != nil {
