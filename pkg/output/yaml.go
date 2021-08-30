@@ -24,7 +24,7 @@ func (f YAMLFormatter) RenderResponse(response *client.Response) string {
 		fmt.Println(err)
 	}
 
-	return string(res)
+	return fmt.Sprintf("%s\n", string(res))
 }
 
 func (f YAMLFormatter) Render(call *client.Call) string {
@@ -33,5 +33,5 @@ func (f YAMLFormatter) Render(call *client.Call) string {
 		fmt.Println(err)
 	}
 
-	return string(res)
+	return fmt.Sprintf("%s\n", string(res))
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/teemuteemu/batman/pkg/client"
 	"github.com/teemuteemu/batman/pkg/env"
 	"github.com/teemuteemu/batman/pkg/files"
-	"github.com/teemuteemu/batman/pkg/renderer"
 	"github.com/teemuteemu/batman/pkg/vm"
 )
 
@@ -30,15 +29,20 @@ func New(c *files.Collection, e *env.Env) (*Run, error) {
 }
 
 func (r *Run) ProcessRequests(requestNames []string, formatter client.Formatter, execute bool) error {
+	// if no requestNames provided, process them all
+	if len(requestNames) == 0 {
+		for _, r := range r.Collection.Requests {
+			requestNames = append(requestNames, r.Name)
+		}
+	}
+
 	for _, requestName := range requestNames {
 		request, err := r.prepareRequest(requestName)
 		if err != nil {
 			return err
 		}
 
-		if !execute {
-			fmt.Print(formatter.RenderRequest(request))
-		} else {
+		if execute {
 			response, err := client.ExecuteRequest(request)
 			if err != nil {
 				return err
@@ -50,6 +54,8 @@ func (r *Run) ProcessRequests(requestNames []string, formatter client.Formatter,
 			}
 
 			fmt.Print(formatter.Render(&call))
+		} else {
+			fmt.Print(formatter.RenderRequest(request))
 		}
 	}
 
@@ -124,12 +130,7 @@ func (r *Run) RunScript(script *files.Script) error {
 		}
 
 		if step.Output {
-			jsonOutput, err := renderer.FormatJSON(response.Body)
-			if err != nil {
-				return err
-			}
-
-			fmt.Println(jsonOutput)
+			fmt.Println(response.Body)
 		}
 
 		i++
