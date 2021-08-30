@@ -19,10 +19,4 @@ archives:
       darwin: darwin_macOS
       amd64: x86_64
 changelog:
-  # skip changelog generation for now
   skip: true
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
